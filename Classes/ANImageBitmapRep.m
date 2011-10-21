@@ -49,21 +49,21 @@
     void * bitmapData;
     int bitmapByteCount;
     int bitmapBytesPerRow;
-	
+
 	// Get image width, height. We'll use the entire image.
     size_t pixelsWide = size.width;
     size_t pixelsHigh = size.height;
-	
+
     bitmapBytesPerRow = (pixelsWide * 4);
     bitmapByteCount = (bitmapBytesPerRow * pixelsHigh);
-	
+
     // Use the generic RGB color space.
     colorSpace = CGColorSpaceCreateDeviceRGB();
     if (colorSpace == NULL) {
         fprintf(stderr, "Error allocating color space\n");
         return NULL;
     }
-	
+
 	// allocate
     bitmapData = malloc(bitmapByteCount);
     if (bitmapData == NULL) {
@@ -73,7 +73,7 @@
 		// it's typedef probably is and it is a scalar anyway.
         return NULL;
     }
-	
+
     // Create the bitmap context. We are
 	// setting up the image as an ARGB (0-255 per component)
 	// 4-byte per/pixel.
@@ -88,12 +88,12 @@
 		free (bitmapData);
 		NSLog(@"Failed to create bitmap!");
     }
-	
+
 	CGContextClearRect(context, CGRectMake(0, 0, size.width, size.height));
-	
+
     CGColorSpaceRelease(colorSpace);
-	
-    return context;	
+
+    return context;
 }
 + (CGContextRef)CreateARGBBitmapContextWithImage:(CGImageRef)image {
 	CGContextRef context = NULL;
@@ -101,21 +101,21 @@
     void * bitmapData;
     int bitmapByteCount;
     int bitmapBytesPerRow;
-	
+
 	// Get image width, height. We'll use the entire image.
     size_t pixelsWide = CGImageGetWidth(image);
     size_t pixelsHigh = CGImageGetHeight(image);
-	
+
     bitmapBytesPerRow = (pixelsWide * 4);
     bitmapByteCount = (bitmapBytesPerRow * pixelsHigh);
-	
+
     // Use the generic RGB color space.
     colorSpace = CGColorSpaceCreateDeviceRGB();
     if (colorSpace == NULL) {
         fprintf(stderr, "Error allocating color space\n");
         return NULL;
     }
-	
+
 	// allocate
     bitmapData = malloc(bitmapByteCount);
     if (bitmapData == NULL) {
@@ -125,7 +125,7 @@
 		// it's typedef probably is and it is a scalar anyway.
         return NULL;
     }
-	
+
     // Create the bitmap context. We are
 	// setting up the image as an ARGB (0-255 per component)
 	// 4-byte per/pixel.
@@ -140,16 +140,16 @@
 		free (bitmapData);
 		NSLog(@"Failed to create bitmap!");
     }
-	
+
 	// draw the image on the context.
 	// CGContextTranslateCTM(context, 0, CGImageGetHeight(image));
 	// CGContextScaleCTM(context, 1.0, -1.0);
 	CGContextClearRect(context, CGRectMake(0, 0, CGImageGetWidth(image), CGImageGetHeight(image)));
 	CGContextDrawImage(context, CGRectMake(0, 0, CGImageGetWidth(image), CGImageGetHeight(image)), image);
-	
+
     CGColorSpaceRelease(colorSpace);
-	
-    return context;	
+
+    return context;
 }
 - (id)initWithSize:(CGSize)sz {
 	if (self = [super init]) {
@@ -191,16 +191,16 @@
 	pxl[1] = (float)((float)c[2]) / 255.0f;
 	pxl[2] = (float)((float)c[3]) / 255.0f;
 	pxl[3] = ((float)(c[0])) / 255.0f;
-	
+
 	if (pxl[3] <= 0) {
 		NSLog(@"Got %f from %d", pxl[3], c[0]);
 	}
-	
+
 	if (pxl[0] > 1) pxl[0] = 1;
 	if (pxl[1] > 1) pxl[1] = 1;
 	if (pxl[2] > 1) pxl[2] = 1;
 	if (pxl[3] > 1) pxl[3] = 1;
-	
+
 }
 - (void)setPixel:(CGFloat *)pxl atX:(int)x y:(int)y {
 	CGSize s = [self size];
@@ -211,12 +211,12 @@
 	int i2 = (int)((float)(pxl[0]) * 255.0f);
 	int i3 = (int)((float)(pxl[1]) * 255.0f);
 	int i4 = (int)((float)(pxl[2]) * 255.0f);
-	
+
 	if (i1 < 0) i1 = 0; else if (i1 > 255) i1 = 255;
 	if (i2 < 0) i2 = 0; else if (i2 > 255) i2 = 255;
 	if (i3 < 0) i3 = 0; else if (i3 > 255) i3 = 255;
 	if (i4 < 0) i4 = 0; else if (i4 > 255) i4 = 255;
-	
+
 	c[0] = (char)(i1);
 	c[1] = (char)(i2);
 	c[2] = (char)(i3);
@@ -260,19 +260,19 @@
 }
 - (void)setSize:(CGSize)size {
 	CGImageRef _img = [self CGImage];
-	
+
 	CGContextRef _ctx = [ANImageBitmapRep CreateARGBBitmapContextWithSize:size];
 	CGContextRelease(ctx);
 	free(bitmapData);
-	
+
 	ctx = _ctx;
 	bitmapData = CGBitmapContextGetData(_ctx);
-	
+
 	CGContextClearRect(ctx, CGRectMake(0, 0, size.width, size.height));
 	CGContextDrawImage(ctx, CGRectMake(0,0,size.width,size.height), _img);
-	
+
 	CGImageRelease(_img);
-	
+
 	changed = YES;
 }
 - (CGSize)size {
@@ -280,25 +280,25 @@
 }
 - (void)drawInRect:(CGRect)r {
 	CGContextRef context = UIGraphicsGetCurrentContext();
-	
+
 	if (!context) {
 		NSLog(@"Cannot draw yet.");
 		return;
 	}
-	
+
 	CGImageRef image = [self CGImage];
-	
+
 	CGContextSaveGState(context);
-	
+
 	///NSLog(@"Height: %d", CGBitmapContextGetHeight(context));
-	
+
 	//NSLog(@"Height: %d", CGBitmapContextGetHeight(context));
 	CGContextTranslateCTM(context, 0, CGBitmapContextGetHeight(context));
 	CGContextScaleCTM(context, 1.0, -1.0);
 	CGContextDrawImage(context, CGRectMake(r.origin.x, (CGBitmapContextGetHeight(context) - r.origin.y) - r.size.height, r.size.width, r.size.height), image);
-	
+
 	CGContextRestoreGState(context);
-	
+
 	CGImageRelease(image);
 }
 - (CGContextRef)graphicsContext {
@@ -310,7 +310,7 @@
 - (void)invertColors {
 	ANImageBitmapRep * rep = self;
 	CGSize s = [rep size];
-	
+
 	for (int y = 0; y < s.height; y++) {
 		for (int x = 0; x < s.width; x++) {
 			unsigned char * c = (unsigned char *)&bitmapData[((y * (int)(s.width))+x) * 4];
@@ -319,7 +319,7 @@
 			c[3] = 255 - c[3];
 		}
 	}
-	
+
 	changed = YES;
 }
 

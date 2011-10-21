@@ -41,7 +41,7 @@ void BitBufferAddBit (BitBuffer bb, UInt8 isOn) {
 		bb->bytes = newBuffer;
 		bb->byteCount += kByteAdd;
 	}
-	
+
 	UInt32 startBit = bb->bitCount % 8;
 	Byte c = bb->bytes[startByte];
 	// set the flag
@@ -59,7 +59,7 @@ UInt8 BitBufferGetBit (BitBuffer bb, UInt32 _bitIndex) {
 	// make a mask
 	if (kReverseEndian) bitIndex = 7 - bitIndex;
 	UInt8 mask = (1 << 7) >> bitIndex;
-	
+
 	// get the byte from the mask
 	UInt8 flag = bb->bytes[byteIndex] & mask;
 	flag = (flag << bitIndex) >> 7;

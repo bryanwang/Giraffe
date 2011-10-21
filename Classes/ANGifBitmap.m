@@ -31,7 +31,7 @@ static UInt8 make3 (UInt8 m) {
 }
 
 - (NSData *)smallBitmapData {
-	// go through and get every single pixel, 
+	// go through and get every single pixel,
 	// then turn it into one byte/pixel
 	NSMutableData * returnData = [NSMutableData data];
 	CGSize s = [self size];
@@ -59,9 +59,9 @@ static UInt8 make3 (UInt8 m) {
 			//NSLog(@"Done freepool.");
 		}
 	}
-	
+
 	NSLog(@"Done conversion.");
-	
+
 	return returnData;
 }
 
