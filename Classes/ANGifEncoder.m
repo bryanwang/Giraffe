@@ -48,27 +48,27 @@
 	[_fileHandle writeLittleChar:0];
 	//  pixel aspect ratio (set at zereo)
 	[_fileHandle writeLittleChar:0];
-	
+
 	// WRITE GLOBAL COLOUR TABLE
 	[_fileHandle writeData:[self globalColorTable]];
-	
+
 	// WRITE THE APPLICATION PLUGIN FOR ANIMATION
 	if (_animated) {
 		[_fileHandle writeData:[self applicationPlugin]];
 	}
-	
+
 	// the next data that will be written
 	// should be images, compressed by LZW
-	
+
 }
 - (void)addImage:(ANGifBitmap *)bitmap {
-	
+
 	// WRITE THE GRAPHICS CONTROL EXTENSION
 	[_fileHandle writeData:[self graphicsControlExtension]];
-	
+
 	// end of the header
 	[_fileHandle writeLittleChar:0];
-	
+
 	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 	// add an image frame here
 	[_fileHandle writeLittleChar:(UInt8)(',')];
@@ -83,7 +83,7 @@
 	//  LZW min. code size (symbol width)
 	[_fileHandle writeLittleChar:8];
 	// write a ton of code
-	
+
 	NSData * bmp = [bitmap smallBitmapData];
 	const char * bitmapData = [bmp bytes];
 	int bmplength = [bmp length];
@@ -100,7 +100,7 @@
 		totalLength += blockLength;
 		const char * data = &((const char *)[lzwdata bytes])[index];
 		[_fileHandle writeLittleChar:blockLength];
-		
+
 		NSData * blockBytes = [NSData dataWithBytes:data
 											 length:blockLength];
 		[_fileHandle writeData:blockBytes];
@@ -110,16 +110,16 @@
 	NSLog(@"%d", totalLength);
 	// terminating sub-block
 	[_fileHandle writeLittleChar:0];
-	
+
 	[pool drain];
 }
 - (void)endFile {
 	// close off the file with any bytes needed
 	// update any data in the headers
-	
+
 	char c = ';';
 	[_fileHandle writeLittleChar:(UInt8)c];
-	
+
 	// then end the writing session
 	[_fileHandle closeFile];
 	[_fileHandle release];
@@ -155,10 +155,10 @@
 		UInt8 red = (i & 3) * 64;
 		UInt8 green = ((i >> 2) & 3) * 64;
 		UInt8 blue = ((i >> 4) & 3) * 64;
-		
+
 		//NSLog(@"%d %d %d", red, green, blue);
 		//NSLog(@"Shift: %d", (i >> 2));
-		
+
 		bytes[0] = red;
 		bytes[1] = green;
 		bytes[2] = blue;
@@ -176,35 +176,35 @@
 	char sentinelData[2];
 	sentinelData[0] = '!';
 	sentinelData[1] = 0xF9;
-	[gce appendData:[NSData dataWithBytes:sentinelData 
+	[gce appendData:[NSData dataWithBytes:sentinelData
 								   length:2]];
 	// four bytes of extension data
 	UInt8 extensionLength = 4;
 	[gce appendData:[NSData dataWithBytes:&extensionLength
 								   length:1]];
-	
+
 	// there is a transparent color
 	UInt8 transColor = 1;
 	[gce appendData:[NSData dataWithBytes:&transColor
 								   length:1]];
-	
+
 	// animation delay (hundreths of a second)
 	UInt16 delayTime = (UInt16)((int)_delay * 100);
 	[gce appendData:[NSData dataWithBytes:&delayTime length:2]];
-	
+
 	// transparent color index (0)
 	UInt8 transparentColor = 0;
 	[gce appendData:[NSData dataWithBytes:&transparentColor
 								   length:1]];
-	
+
 	[pool drain];
 	return [gce autorelease];
-	
+
 }
 
 - (NSData *)applicationPlugin {
 	NSMutableData * d = [[NSMutableData alloc] init];
-	
+
 	[d appendBytes:"\x21\xFF\x0B" length:3];
 	[d appendBytes:"\x4E\x45\x54" length:3];
 	[d appendBytes:"\x53\x43\x41" length:3];
@@ -213,7 +213,7 @@
 	[d appendBytes:"\x03\x01" length:2];
 	[d appendBytes:"\xFF\xFF" length:2]; // Loop animation
 	[d appendBytes:"\x00" length:1];
-	
+
 	return [d autorelease];
 }
 
@@ -236,18 +236,18 @@
 			// here we will write the clear character
 			for (int j = 0; j < 8; j++) {
 				BitBufferAddBit(compressed, 0);
-			}	
+			}
 			BitBufferAddBit(compressed, 1);
 			// here we write the first bit of
 			// our new byte (padding to nine bits/byte).
-			
+
 		}
 		BitBufferAddBit(compressed, BitBufferGetBit(orig, (UInt32)i));
 		if ((i + 1) % 8 == 0) BitBufferAddBit(compressed, 0);
 	}
-	
-	
-	
+
+
+
 	// finish our data off
 	// with a termination nine-bit code
 	BitBufferAddBit(compressed, 1);
@@ -255,9 +255,9 @@
 		BitBufferAddBit(compressed, 0);
 	}
 	BitBufferAddBit(compressed, 1);
-	
+
 	printf("\n");
-	
+
 	UInt32 length = 0;
 	char * returnData = (char *)BitBufferGetBytes(compressed, &length);
 	BitBufferFree(compressed, 0);
